@@ -2,8 +2,8 @@ from fltk import *
 import shapefile
 
 
-largeur = 2000
-hauteur = 1000
+largeur = 900
+hauteur = 800
 cree_fenetre(largeur, hauteur)
 
 sf = shapefile.Reader("departements-20180101.shp")
@@ -26,8 +26,8 @@ def affichage_carte(zoom,largeur_zoom ):
         # Liste de points convertis pour ce département
         points_pixels = []
         for lon, lat in shp.points:
-            x, y = geo_vers_pixel(lon, lat, xmin, ymin, xmax, ymax, (9000*zoom)//3.1,(6500*zoom)//3)
-            x,y = x//largeur_zoom,y+zoom
+            x, y = geo_vers_pixel(lon, lat, xmin, ymin, xmax, ymax, 5000,5000)
+            x-=2280
             points_pixels.append((x,y))
         liste_points = [coord for point in points_pixels for coord in point]
         # Dessin du polygone du département
