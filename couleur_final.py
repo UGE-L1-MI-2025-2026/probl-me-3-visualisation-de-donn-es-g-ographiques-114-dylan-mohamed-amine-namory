@@ -41,12 +41,10 @@ def construire_dictionnaire(fichier_csv):
         if dep not in dico:
             dico[dep] = {}
         if date not in dico[dep]:
-            dico[dep][date] = []
-        dico[dep][date].append({
-            "tmin": tmin,
-            "tmax": tmax,
-            "tmoy": tmoy
-        })
+            dico[dep][date] = {}
+        dico[dep][date]["tmin"] = tmin
+        dico[dep][date]["tmax"] = tmax
+        dico[dep][date]["tmoy"] = tmoy
 
     return dico
 
