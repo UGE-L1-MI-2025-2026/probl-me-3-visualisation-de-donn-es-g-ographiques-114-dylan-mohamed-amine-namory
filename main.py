@@ -1,6 +1,6 @@
 from fltk import *
 import shapefile
-import csv
+from couleur_final import *
 
 largeur = 900
 hauteur = 800
@@ -9,16 +9,9 @@ cree_fenetre(largeur, hauteur)
 sf = shapefile.Reader("departements-20180101.shp")
 departements = sf.shapes()
 
-base_de_donnee =  []
 
-with open("temperature-quotidienne-departementale.csv",encoding="utf-8-sig") as f:
-    bd = csv.DictReader(f,delimiter=";")
-    for data in bd:
-        base_de_donnee.append(data)
-      
-
-
-
+fichier_csv ="temperature-quotidienne-departementale.csv"
+dico = construire_dictionnaire(fichier_csv)
 
 # Conversion géographique en pixel
 def geo_vers_pixel(lon, lat, xmin, ymin, xmax, ymax, largeur, hauteur):
@@ -29,40 +22,60 @@ def geo_vers_pixel(lon, lat, xmin, ymin, xmax, ymax, largeur, hauteur):
 # On récupère d'abord la bbox TOTALE du shapefile
 xmin, ymin, xmax, ymax = sf.bbox
 
-def affichage_carte():
-    for departement in departements:
-        parties = departement.parts
-        parties = list(parties) + [len(departement.points)]
-        
-        for i in range(len(parties)-1):
-        
-            point_debut_ile = parties[i]
-            point_fin_ile = parties[i+1]
-            points_ile = departement.points[point_debut_ile:point_fin_ile]
-            
-            points_pixels = []
-            for lon, lat in points_ile:
-                x, y = geo_vers_pixel(lon, lat, xmin, ymin, xmax, ymax, 5000, 5000)
-                x -= 2280
-                points_pixels.append((x, y))
-            
-            liste_points = [coord for point in points_pixels for coord in point]
-            for data in base_de_donnee:
-                for cle,valeur in data.items():
-                    if cle == "TMax (°C)":
-                        print(valeur)
-                        if  0<=valeur<=5: couleur_temperature = "midnightblue"
-                        elif 5<=valeur<=10: couleur_temperature = "slateblue"
-                        elif 10<=valeur<=15: couleur_temperature = "darkmagenta"
-                        elif 15<=valeur<=20: couleur_temperature= "mediumvioletred"
-                        elif 20<=valeur<=25: couleur_temperature= "distorched"
-                        elif 25<=valeur<=30: couleur_temperature= "darkorange"
-                        elif 30<=valeur<=35: couleur_temperature= "orange"
-                        else:couleur_temperature= "yellow"
-                        
 
-            polygone(liste_points, remplissage="white", couleur=couleur_temperature)
-            cercle(x,y, r=5, couleur="black", remplissage="blue")
+def obtenir_temperature_max(t_max):
+    if  0<=t_max<=1: return "midnightblue"
+    elif 1<=t_max<=2: return"slateblue"
+    elif 2<=t_max<=10: return"slateblue"
+    elif 5<=t_max<=10: return"slateblue"
+    elif 10<=t_max<=15: return "darkmagenta"
+    elif 15<=t_max<=20: return "mediumvioletred"
+    elif 20<=t_max<=25: return "pink"
+    elif 25<=t_max<=30: return "darkorange"
+    elif 30<=t_max<=35: return "orange"
+    else: return "yellow"
+
+
+
+
+    
+
+anne = input("Entrez une année : ")
+dico_temperatures = tempmax(dico,anne)
+
+def affichage_temp(code,dico_temperatures):
+    t_max = 0
+    for code_dep, temp in dico_temperatures.items():
+        if code_dep == code:
+            
+            t_max = temp
+    return float(t_max)
+
+def affichage_carte():
+    for code, departement in enumerate(departements):
+            parties = departement.parts
+            parties = list(parties) + [len(departement.points)]
+            
+            for i in range(len(parties)-1):
+            
+                point_debut_ile = parties[i]
+                point_fin_ile = parties[i+1]
+                points_ile = departement.points[point_debut_ile:point_fin_ile]
+                
+                points_pixels = []
+                for lon, lat in points_ile:
+                    x, y = geo_vers_pixel(lon, lat, xmin, ymin, xmax, ymax, 5000, 5000)
+                    x -= 2280
+                    points_pixels.append((x, y))
+                
+                liste_points = [coord for point in points_pixels for coord in point]
+                code_insee = str(code)
+                t_max = affichage_temp(code_insee,dico_temperatures)
+        
+
+                couleur_temperature = obtenir_temperature_max(t_max)
+                polygone(liste_points, remplissage=couleur_temperature, couleur="black")
+               
 
 
 affichage_carte()
