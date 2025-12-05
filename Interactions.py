@@ -1,5 +1,6 @@
 import fltk as f 
 import shapefile
+import time 
 
 
 
@@ -28,7 +29,28 @@ def changement_map():
 
         f.mise_a_jour()
 
-def changement_date():
+
+
+
+
+
+def triller_dates():
+    
+
+
+    da = f"{annee}-{mois}-{jour}" 
+
+    while annee <= 2025 and mois <= 10 and jour <= 31:
+        
+    
+
+
+
+
+
+
+
+def changement_date_manuel():
     while True:
         ev = f.donne_ev()
 
@@ -38,6 +60,8 @@ def changement_date():
 
         if t.lower() == 'd':
             f.efface_tout()
+            print(f"La carte { } à la date {}")
+
 
             
             
@@ -45,6 +69,8 @@ def changement_date():
             
         elif t.lower() == 'q': 
             f.efface_tout()
+            print(f"La carte { } à la date {}")
+
         
 
 
