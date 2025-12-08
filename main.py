@@ -1,30 +1,103 @@
+from fltk import *
+import shapefile
+from couleur_final import *
+
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+
+largeur = 900
+hauteur = 800
+cree_fenetre(largeur, hauteur)
+
+sf = shapefile.Reader("departements-20180101.shp")
+departements = sf.shapes()
+
+
+fichier_csv ="temperature-quotidienne-departementale.csv"
+dico = construire_dictionnaire(fichier_csv)
+
+
+
+
+
+
+
+
+# Conversion géographique en pixel
+def geo_vers_pixel(lon, lat, xmin, ymin, xmax, ymax, largeur, hauteur):
+    x = (lon - xmin) / (xmax - xmin) * largeur
+    y = hauteur - (lat - ymin) / (ymax - ymin) * hauteur
+    return x, y
+
+# On récupère d'abord la bbox TOTALE du shapefile
+xmin, ymin, xmax, ymax = sf.bbox
+
+
+def obtenir_temperature_max(t_max):
+    if  0<=t_max<=1: return "midnightblue"
+    elif 1<=t_max<=2: return"slateblue"
+    elif 2<=t_max<=10: return"slateblue"
+    elif 5<=t_max<=10: return"slateblue"
+    elif 10<=t_max<=15: return "darkmagenta"
+    elif 15<=t_max<=20: return "mediumvioletred"
+    elif 20<=t_max<=25: return "pink"
+    elif 25<=t_max<=30: return "darkorange"
+    elif 30<=t_max<=35: return "orange"
+    else: return "yellow"
+
+
+
+
+    
+anne = input("Entrez une année : ")
+dico_temperatures = tempmax(dico,anne)
+
+def affichage_temp(code,dico_temperatures):
+    t_max = 0
+    for code_dep, temp in dico_temperatures.items():
+        if code_dep == code:
+            
+            t_max = temp
+    return float(t_max)
+
+
+
+liste_polygone = []
+def affichage_carte():
+    for code, departement in enumerate(departements):
+            parties = departement.parts
+            parties = list(parties) + [len(departement.points)]
+            
+            for i in range(len(parties)-1):
+            
+                point_debut_ile = parties[i]
+                point_fin_ile = parties[i+1]
+                points_ile = departement.points[point_debut_ile:point_fin_ile]
+                
+                points_pixels = []
+                for lon, lat in points_ile:
+                    x, y = geo_vers_pixel(lon, lat, xmin, ymin, xmax, ymax, 5000, 5000)
+                    x -= 2280
+                    points_pixels.append((x, y))
+                
+                liste_points = [coord for point in points_pixels for coord in point]
+                code_insee = str(code)
+                t_max = affichage_temp(code_insee,dico_temperatures)
+        
+
+                couleur_temperature = obtenir_temperature_max(t_max)
+                id_dep = polygone(liste_points, remplissage=couleur_temperature, couleur="black")
+                liste_polygone.append(id_dep)
+               
+
+
+affichage_carte()
+
 cmaps = [('Perceptually Uniform Sequential', [
             'viridis', 'plasma', 'inferno', 'magma', 'cividis']),
-         ('Sequential', [
-            'Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds',
-            'YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu',
-            'GnBu', 'PuBu', 'YlGnBu', 'PuBuGn', 'BuGn', 'YlGn']),
-         ('Sequential (2)', [
-            'binary', 'gist_yarg', 'gist_gray', 'gray', 'bone', 'pink',
-            'spring', 'summer', 'autumn', 'winter', 'cool', 'Wistia',
-            'hot', 'afmhot', 'gist_heat', 'copper']),
-         ('Diverging', [
-            'PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu',
-            'RdYlBu', 'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic',
-            'berlin', 'managua', 'vanimo']),
-         ('Cyclic', ['twilight', 'twilight_shifted', 'hsv']),
-         ('Qualitative', [
-            'Pastel1', 'Pastel2', 'Paired', 'Accent',
-            'Dark2', 'Set1', 'Set2', 'Set3',
-            'tab10', 'tab20', 'tab20b', 'tab20c']),
-         ('Miscellaneous', [
-            'flag', 'prism', 'ocean', 'gist_earth', 'terrain', 'gist_stern',
-            'gnuplot', 'gnuplot2', 'CMRmap', 'cubehelix', 'brg',
-            'gist_rainbow', 'rainbow', 'jet', 'turbo', 'nipy_spectral',
-            'gist_ncar'])]
+]
 
 gradient = np.linspace(0, 1, 256)
 gradient = np.vstack((gradient, gradient))
@@ -51,3 +124,26 @@ def plot_color_gradients(cmap_category, cmap_list):
 
 for cmap_category, cmap_list in cmaps:
     plot_color_gradients(cmap_category, cmap_list)
+
+plt.show()
+
+
+while True:
+    ev = donne_ev()
+    tev = type_ev(ev)
+
+
+    for dep in liste_polygone:
+        objet = objet_survole()
+        if objet == dep:
+            modifie(dep,couleur="white")
+
+
+
+    if tev == "Quitte":
+        break
+    mise_a_jour()
+
+
+
+ferme_fenetre()
