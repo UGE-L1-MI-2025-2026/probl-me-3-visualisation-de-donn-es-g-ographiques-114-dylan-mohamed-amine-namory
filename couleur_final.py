@@ -49,6 +49,20 @@ def construire_dictionnaire(fichier_csv):
     return dico
 
 
-# TEST
-dico = construire_dictionnaire("temperature.csv")
-print(dico)
+
+
+def tempmax(dico,annee):
+    dict = {}
+    for cle, valeur in dico.items():
+        for date, temperatures in valeur.items():
+            
+            if annee == date[:4]:
+                
+                dict[cle] = temperatures["tmax"]
+    
+    return dict
+    
+
+fichier_csv ="temperature-quotidienne-departementale.csv"
+dico = construire_dictionnaire(fichier_csv)
+print(tempmax(dico,"2025"))
