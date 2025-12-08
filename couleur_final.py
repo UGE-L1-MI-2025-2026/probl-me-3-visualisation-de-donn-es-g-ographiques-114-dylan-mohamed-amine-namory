@@ -63,6 +63,6 @@ def tempmax(dico,annee):
     return dict
     
 
-fichier_csv ="temperature-quotidienne-departementale.csv"
+fichier_csv ="temperature.csv"
 dico = construire_dictionnaire(fichier_csv)
 print(tempmax(dico,"2025"))

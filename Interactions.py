@@ -1,6 +1,7 @@
 import fltk as f 
 import shapefile
 import time 
+import couleur_final as c
 
 
 
@@ -32,15 +33,24 @@ def changement_map():
 
 
 
+fichier_csv = "temperature.csv"
+dico = c.construire_dictionnaire(fichier_csv)
+
+def contruire_liste_date(dico):
+    liste_date = []
+    for cle , valeur in dico.items() :
+        if valeur not in liste_date:
+            liste_date.append(valeur)
+    return liste_date
 
 
-def triller_dates():
-    
 
 
-    da = f"{annee}-{mois}-{jour}" 
 
-    while annee <= 2025 and mois <= 10 and jour <= 31:
+
+
+
+
         
     
 
@@ -50,7 +60,7 @@ def triller_dates():
 
 
 
-def changement_date_manuel():
+'''def changement_date_manuel():
     while True:
         ev = f.donne_ev()
 
@@ -74,7 +84,7 @@ def changement_date_manuel():
         
 
 
-        f.mise_a_jour()
+        f.mise_a_jour()'''
 
 
 
