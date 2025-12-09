@@ -2,10 +2,6 @@ from fltk import *
 import shapefile
 from couleur_final import *
 
-import matplotlib.pyplot as plt
-import numpy as np
-
-
 
 largeur = 900
 hauteur = 800
@@ -13,11 +9,11 @@ cree_fenetre(largeur, hauteur)
 
 sf = shapefile.Reader("departements-20180101.shp")
 departements = sf.shapes()
+re = sf.records()
 
 
-fichier_csv ="temperature-quotidienne-departementale.csv"
+fichier_csv ="temperature.csv"
 dico = construire_dictionnaire(fichier_csv)
-
 
 
 
@@ -36,16 +32,18 @@ xmin, ymin, xmax, ymax = sf.bbox
 
 
 def obtenir_temperature_max(t_max):
-    if  0<=t_max<=1: return "midnightblue"
-    elif 1<=t_max<=2: return"slateblue"
-    elif 2<=t_max<=10: return"slateblue"
-    elif 5<=t_max<=10: return"slateblue"
-    elif 10<=t_max<=15: return "darkmagenta"
-    elif 15<=t_max<=20: return "mediumvioletred"
-    elif 20<=t_max<=25: return "pink"
-    elif 25<=t_max<=30: return "darkorange"
-    elif 30<=t_max<=35: return "orange"
-    else: return "yellow"
+    if t_max == None:
+        return "white"
+    if t_max <= 0: return "#0d0887"   
+    elif t_max <= 5: return "#46039f"  
+    elif t_max <= 10: return "#7201a8"   
+    elif t_max <= 15: return "#9c179e"   
+    elif t_max <= 20: return "#bd3786"   
+    elif t_max <= 25: return "#dd513a"   
+    elif t_max <= 30: return "#f37819"   
+    elif t_max <= 35: return "#fca50a"   
+    else: return "#fcba03"
+
 
 
 
@@ -55,93 +53,90 @@ anne = input("Entrez une année : ")
 dico_temperatures = tempmax(dico,anne)
 
 def affichage_temp(code,dico_temperatures):
-    t_max = 0
+    t_max = None
     for code_dep, temp in dico_temperatures.items():
         if code_dep == code:
             
             t_max = temp
+    if t_max == None:
+        return t_max
+
     return float(t_max)
 
 
+dico_departements = {}
 
-liste_polygone = []
 def affichage_carte():
-    for code, departement in enumerate(departements):
-            parties = departement.parts
-            parties = list(parties) + [len(departement.points)]
-            
-            for i in range(len(parties)-1):
-            
-                point_debut_ile = parties[i]
-                point_fin_ile = parties[i+1]
-                points_ile = departement.points[point_debut_ile:point_fin_ile]
-                
-                points_pixels = []
-                for lon, lat in points_ile:
-                    x, y = geo_vers_pixel(lon, lat, xmin, ymin, xmax, ymax, 5000, 5000)
-                    x -= 2280
-                    points_pixels.append((x, y))
-                
-                liste_points = [coord for point in points_pixels for coord in point]
-                code_insee = str(code)
-                t_max = affichage_temp(code_insee,dico_temperatures)
-        
+    for i in range(len(departements)):
+        departement = departements[i]
+        record = sf.record(i)  
+        code_insee = record["code_insee"]
 
-                couleur_temperature = obtenir_temperature_max(t_max)
-                id_dep = polygone(liste_points, remplissage=couleur_temperature, couleur="black")
-                liste_polygone.append(id_dep)
+        
+       
+        parties = list(departement.parts) + [len(departement.points)]
+        
+        for j in range(len(parties)-1):
+            point_debut_ile = parties[j]
+            point_fin_ile = parties[j+1]
+            points_ile = departement.points[point_debut_ile:point_fin_ile]
+            
+            points_pixels = []
+            for lon, lat in points_ile:
+                x, y = geo_vers_pixel(lon, lat, xmin, ymin, xmax, ymax, 5000, 5000)
+                x -= 2280
+                points_pixels.append((x, y))
+            
+            liste_points = [coord for point in points_pixels for coord in point]
+
+            t_max = affichage_temp(code_insee, dico_temperatures)
+            couleur_temperature = obtenir_temperature_max(t_max)
+
+           
+            id_dep = polygone(liste_points, remplissage=couleur_temperature, couleur="black")
+            dico_departements[id_dep] = {"nom":record["nom"],"t_max":t_max}
+            
+
                
 
 
 affichage_carte()
 
-cmaps = [('Perceptually Uniform Sequential', [
-            'viridis', 'plasma', 'inferno', 'magma', 'cividis']),
-]
 
-gradient = np.linspace(0, 1, 256)
-gradient = np.vstack((gradient, gradient))
-
-
-def plot_color_gradients(cmap_category, cmap_list):
-    # Create figure and adjust figure height to number of colormaps
-    nrows = len(cmap_list)
-    figh = 0.35 + 0.15 + (nrows + (nrows-1)*0.1)*0.22
-    fig, axs = plt.subplots(nrows=nrows, figsize=(6.4, figh))
-    fig.subplots_adjust(top=1-.35/figh, bottom=.15/figh, left=0.2, right=0.99)
-
-    axs[0].set_title(f"{cmap_category} colormaps", fontsize=14)
-
-    for ax, cmap_name in zip(axs, cmap_list):
-        ax.imshow(gradient, aspect='auto', cmap=cmap_name)
-        ax.text(-.01, .5, cmap_name, va='center', ha='right', fontsize=10,
-                transform=ax.transAxes)
-
-    # Turn off *all* ticks & spines, not just the ones with colormaps.
-    for ax in axs:
-        ax.set_axis_off()
-
-
-for cmap_category, cmap_list in cmaps:
-    plot_color_gradients(cmap_category, cmap_list)
-
-plt.show()
+last_obj = None
 
 
 while True:
     ev = donne_ev()
     tev = type_ev(ev)
 
+    obj = objet_survole()
 
-    for dep in liste_polygone:
-        objet = objet_survole()
-        if objet == dep:
-            modifie(dep,couleur="white")
+    if obj !=None and obj != last_obj:
 
+        if last_obj != None:
+            modifie(last_obj, couleur="black")
 
+        modifie(obj, couleur="white")
+
+        info = dico_departements.get(obj, None)
+
+        if info !=None:
+            t_max = info['t_max']
+            if t_max == None:
+                texte_affiche = f"{info['nom']} :pas de donnée"
+            else:
+                texte_affiche = f"{info['nom']} : {t_max}°C"
+
+            rectangle(0,0,340,40, remplissage="white",couleur="white")
+            
+            texte_dep = texte(10,10, texte_affiche, taille=15, couleur="black")
+
+        last_obj = obj
 
     if tev == "Quitte":
         break
+
     mise_a_jour()
 
 
