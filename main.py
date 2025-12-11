@@ -105,10 +105,41 @@ affichage_carte()
 
 last_obj = None
 
+def changer_annee_carte(annee):
+    efface_tout()
+    global  dico_temperatures
+    dico_temperatures = tempmax(dico,anne)
+    affichage_carte()
+    mise_a_jour()
+
+
+
+
+
 
 while True:
     ev = donne_ev()
     tev = type_ev(ev)
+
+    if tev == 'ClicDroit' :
+        anne = str(int(anne) + 1)
+        if int(anne) <= 2025 :
+            print(anne)
+            changer_annee_carte(anne)
+
+
+    elif tev == 'ClicGauche' :
+        anne = str(int(anne) - 1) 
+        if int(anne) >= 2018:
+            print(anne)
+            changer_annee_carte(anne)
+
+
+    
+
+
+    
+
 
     obj = objet_survole()
 
