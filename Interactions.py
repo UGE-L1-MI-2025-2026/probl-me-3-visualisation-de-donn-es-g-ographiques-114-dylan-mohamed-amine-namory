@@ -1,6 +1,7 @@
 import fltk as f 
 import shapefile
-import time 
+import time
+from datetime import date
 import couleur_final as c
 
 
@@ -56,8 +57,6 @@ def str_vers_int(liste_date):
     return liste_trier
 
 
-
-
 def ordonner_liste_dates(liste_trier):
     liste_ordonner = []
     for date in liste_trier:
@@ -69,14 +68,18 @@ def ordonner_liste_dates(liste_trier):
     return liste_ordonner
 
 
+dates = ordonner_liste_dates(str_vers_int(recuperer_liste_date(dico)))
+
+def maj_date_chaque_seconde(liste_dates, date_actuelle):
+    for y, m, d in liste_dates:
+        date_actuelle[0] = date(y, m, d).isoformat()
+        print("date_actuelle =", date_actuelle[0])
+        time.sleep(1)
+
+date_actuelle = [None]   # variable mutable
+maj_date_chaque_seconde(dates, date_actuelle)
 
 
-print(ordonner_liste_dates(str_vers_int(recuperer_liste_date(dico))))
-
-
-
-
-        
     
 
 
