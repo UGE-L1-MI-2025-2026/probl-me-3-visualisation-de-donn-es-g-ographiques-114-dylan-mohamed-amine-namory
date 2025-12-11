@@ -1,7 +1,9 @@
 from fltk import *
 import shapefile
 from couleur_final import *
-import Interactions as I
+
+
+
 
 largeur = 900
 hauteur = 800
@@ -12,7 +14,8 @@ departements = sf.shapes()
 re = sf.records()
 
 
-fichier_csv ="temperature.csv"
+
+fichier_csv = "temperature.csv"
 dico = construire_dictionnaire(fichier_csv)
 
 
@@ -45,12 +48,33 @@ def obtenir_temperature_max(t_max):
     else: return "#fcba03"
 
 
+def dessiner_colorbar():
+    x1 = 780  
+    x2 = 840  
+    hauteur = 40
+    y = 50
+
+    couleurs = [
+        ("≤ 0°C", "#0d0887"),
+        ("≤ 5°C", "#46039f"),
+        ("≤ 10°C", "#7201a8"),
+        ("≤ 15°C", "#9c179e"),
+        ("≤ 20°C", "#bd3786"),
+        ("≤ 25°C", "#dd513a"),
+        ("≤ 30°C", "#f37819"),
+        ("≤ 35°C", "#fca50a"),
+        ("> 35°C", "#fcba03")
+    ]
+
+    for temp, col in couleurs:
+        rectangle(x1, y, x2, y + hauteur, remplissage=col, couleur="black")
+        texte(x2 + 5, y + 10, temp, taille=12, couleur="black")  
+        y += hauteur
 
 
 
-    
-anne = input("Entrez une année : ")
-dico_temperatures = tempmax(dico,anne)
+annee = input("Entrez une année : ")
+dico_temperatures = tempmax(dico,annee)
 
 def affichage_temp(code,dico_temperatures):
     t_max = None
@@ -92,74 +116,79 @@ def affichage_carte():
             t_max = affichage_temp(code_insee, dico_temperatures)
             couleur_temperature = obtenir_temperature_max(t_max)
 
-           
+            
             id_dep = polygone(liste_points, remplissage=couleur_temperature, couleur="black")
             dico_departements[id_dep] = {"nom":record["nom"],"t_max":t_max}
             
 
-               
+rectangle(0,0,340,40, remplissage="white")
+rectangle(0,700,250,760,remplissage="gray")
 
+rectangle(0,700,35,760,remplissage="white")
+rectangle(210,700,250,760,remplissage="white")
 
+texte(40,720,f'Année : {annee}',taille=20,police="bold")
+texte(10,720,"<",taille=20)
+texte(215,720,">",taille=20)
 affichage_carte()
+dessiner_colorbar()
 
 
-last_obj = None
 
 def changer_annee_carte(annee):
     efface_tout()
     global  dico_temperatures
-    dico_temperatures = tempmax(dico,anne)
+    dico_temperatures = tempmax(dico,annee)
     affichage_carte()
+    dessiner_colorbar()
+
+    rectangle(0,0,340,40, remplissage="white")
+    rectangle(0,700,250,760,remplissage="gray")
+
+    rectangle(0,700,35,760,remplissage="white")
+    rectangle(210,700,250,760,remplissage="white")
+
+    texte(40,720,f'Année : {annee}',taille=20,police="bold")
+    texte(10,720,"<",taille=20)
+    texte(215,720,">",taille=20)
+
     mise_a_jour()
 
 
 
 
-
+objet_precedent = None
 
 while True:
     ev = donne_ev()
     tev = type_ev(ev)
 
-    if tev == 'ClicDroit' :
-        anne = str(int(anne) + 1)
-        if int(anne) <= 2025 :
-            print(anne)
-            changer_annee_carte(anne)
+    if tev == 'ClicDroit' or tev=="ClicGauche" :
+        x = abscisse(ev)
+        y = ordonnee(ev)
+        if 210 <= x <= 250 and 700 <=y<=760 :
+            annee = str(int(annee) + 1)
+            if int(annee) <= 2025 :
+                print(annee)
+                changer_annee_carte(annee)
 
 
-    elif tev == 'ClicGauche' :
-        anne = str(int(anne) - 1) 
-        if int(anne) >= 2018:
-            print(anne)
-            changer_annee_carte(anne)
+        elif 0 <= x <= 35 and 700 <=y<=760:
+            annee = str(int(annee) - 1) 
+            if int(annee) >= 2018:
+                print(annee)
+                changer_annee_carte(annee)
 
-    elif tev == 'ClicGauche' :
-        print('animation lance')
-        efface_tout()
-        anne = I.maj_date_chaque_seconde(I.liste, anne)
-        obtenir_temperature_max(dico, anne)
-        mise_a_jour()
-        affichage_carte()
+    objet = objet_survole()
 
+    if objet !=None and objet != objet_precedent:
 
+        if objet_precedent != None:
+            modifie(objet_precedent, couleur="black")
 
-    
+        modifie(objet, couleur="white")
 
-
-    
-
-
-    obj = objet_survole()
-
-    if obj !=None and obj != last_obj:
-
-        if last_obj != None:
-            modifie(last_obj, couleur="black")
-
-        modifie(obj, couleur="white")
-
-        info = dico_departements.get(obj, None)
+        info = dico_departements.get(objet, None)
 
         if info !=None:
             t_max = info['t_max']
@@ -172,7 +201,7 @@ while True:
             
             texte_dep = texte(10,10, texte_affiche, taille=15, couleur="black")
 
-        last_obj = obj
+        objet_precedent = objet
 
     if tev == "Quitte":
         break
