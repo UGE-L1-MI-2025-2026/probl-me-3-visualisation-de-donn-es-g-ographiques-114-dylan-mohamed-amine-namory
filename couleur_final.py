@@ -61,8 +61,28 @@ def tempmax(dico,annee):
                 dict[cle] = temperatures["tmax"]
     
     return dict
+
+def tempmin(dico,annee):
+    dict = {}
+    for cle, valeur in dico.items():
+        for date, temperatures in valeur.items():
+            
+            if annee == date[:4]:
+                
+                dict[cle] = temperatures["tmin"]
     
+    return dict
+
+def tempmoy(dico,annee):
+    dict = {}
+    for cle, valeur in dico.items():
+        for date, temperatures in valeur.items():
+            
+            if annee == date[:4]:
+                
+                dict[cle] = temperatures["tmoy"]
+    
+    return dict   
 
 fichier_csv ="temperature.csv"
 dico = construire_dictionnaire(fichier_csv)
-print(tempmax(dico,"2025"))
