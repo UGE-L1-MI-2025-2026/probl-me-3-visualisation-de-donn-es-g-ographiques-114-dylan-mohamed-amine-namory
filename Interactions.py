@@ -36,17 +36,42 @@ def changement_map():
 fichier_csv = "temperature.csv"
 dico = c.construire_dictionnaire(fichier_csv)
 
-def contruire_liste_date(dico):
+
+def recuperer_liste_date(dico):
     liste_date = []
-    for cle , valeur in dico.items() :
-        if valeur not in liste_date:
-            liste_date.append(valeur)
+    for cle, valeurs in dico.items():
+        for valeur in valeurs:
+            if valeur not in liste_date:
+                liste_date.append(valeur)
     return liste_date
 
 
+def str_vers_int(liste_date):
+    liste_trier = []
+    for i in liste_date:
+        annee = int(i[:4])
+        mois = int(i[5:7])
+        jour = int(i[8:10])
+        liste_trier.append((annee, mois, jour))
+    return liste_trier
 
 
 
+
+def ordonner_liste_dates(liste_trier):
+    liste_ordonner = []
+    for date in liste_trier:
+        if date not in liste_ordonner:
+            liste_ordonner.append(date)
+
+    liste_ordonner.sort()
+
+    return liste_ordonner
+
+
+
+
+print(ordonner_liste_dates(str_vers_int(recuperer_liste_date(dico))))
 
 
 
