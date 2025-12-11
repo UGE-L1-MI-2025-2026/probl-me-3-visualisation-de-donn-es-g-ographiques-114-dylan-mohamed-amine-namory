@@ -1,7 +1,7 @@
 from fltk import *
 import shapefile
 from couleur_final import *
-
+import Interactions as I
 
 largeur = 900
 hauteur = 800
@@ -133,6 +133,15 @@ while True:
         if int(anne) >= 2018:
             print(anne)
             changer_annee_carte(anne)
+
+    elif tev == 'ClicGauche' :
+        print('animation lance')
+        efface_tout()
+        anne = I.maj_date_chaque_seconde(I.liste, anne)
+        obtenir_temperature_max(dico, anne)
+        mise_a_jour()
+        affichage_carte()
+
 
 
     

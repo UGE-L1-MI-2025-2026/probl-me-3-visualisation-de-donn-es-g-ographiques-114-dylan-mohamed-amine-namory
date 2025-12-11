@@ -1,6 +1,8 @@
 from fltk import *
 import shapefile
 import math
+import population as p 
+
 
 '''Mathématiquement, la projection de Mercator est défini de la façon suivante :
  si un point de la sphère a pour latitude φ et pour longitude λ 
@@ -36,13 +38,13 @@ for shp in shapes:
 mise_a_jour()
 attend_ev()
 ferme_fenetre()'''
-from fltk import *
-import shapefile
+
 
 
 largeur = 1920-10
 hauteur = 1080-100
 cree_fenetre(largeur, hauteur)
+anne = input("Entrez une année : ")
 
 sf = shapefile.Reader("country_shapes.shp")
 shapes = sf.shapes()
@@ -58,7 +60,7 @@ def geo_vers_pixel(lon, lat, xmin, ymin, xmax, ymax, largeur, hauteur):
 # On récupère d'abord la bbox TOTALE du shapefile
 xmin, ymin, xmax, ymax = sf.bbox
 
-def affichage_carte():
+def affichage_carte_monde():
     for shp in shapes:
         parts = shp.parts
         parts = list(parts) + [len(shp.points)]
@@ -75,23 +77,38 @@ def affichage_carte():
             
             liste_points = [coord for point in points_pixels for coord in point]
             polygone(liste_points, remplissage="white", couleur="black")
-            cercle(x,y, r=3, couleur="black", remplissage="blue")
+            
 
 
 
-affichage_carte()
+affichage_carte_monde()
+
+
+def changer_annee_carte(annee):
+    efface_tout()
+    global  population
+    population = p.densite_annee(p.dico_population, anne)
+    affichage_carte_monde()
+    mise_a_jour()
+
+
 while True:
     ev = donne_ev()
     tev = type_ev(ev)
 
-    if tev == "Touche":
-        pass
+    if tev == 'ClicDroit' :
+        anne = str(int(anne) + 1)
+        if int(anne) <= 2025 :
+            print(anne)
+            changer_annee_carte(anne)
 
-            
-       
-    
-    elif tev == "Quitte":
-        break
+
+    elif tev == 'ClicGauche' :
+        anne = str(int(anne) - 1) 
+        if int(anne) >= 2018:
+            print(anne)
+            changer_annee_carte(anne)
+
     mise_a_jour()
 
 

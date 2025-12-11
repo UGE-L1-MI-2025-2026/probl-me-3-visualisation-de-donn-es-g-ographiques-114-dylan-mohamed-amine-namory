@@ -70,22 +70,26 @@ def ordonner_liste_dates(liste_trier):
     return liste_ordonner
 
 
-print(ordonner_liste_dates(str_vers_int(recuperer_liste_date(dico))))
+#print(ordonner_liste_dates(str_vers_int(recuperer_liste_date(dico))))
 
 def maj_date_chaque_seconde(liste_dates, date_actuelle):
     for y, m, d in liste_dates:
-        date_actuelle[0] = date(y, m, d).isoformat()
-        print("date_actuelle =", date_actuelle[0])
-        time.sleep(1)
+        date_actuelle = date(y, m, d).isoformat()
+        print(date_actuelle)
+        time.sleep(0.04)
 
-date_actuelle = [None]   # variable mutable
-
-
+date_actuelle = ''  # variable mutable
 
 
 
+liste = ordonner_liste_dates(str_vers_int(recuperer_liste_date(dico)))
 
 
+#print(maj_date_chaque_seconde(liste, date_actuelle))
+
+
+
+    
 
 
 '''def changement_date_manuel():
