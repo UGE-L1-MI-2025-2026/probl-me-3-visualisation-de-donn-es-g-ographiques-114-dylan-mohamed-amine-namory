@@ -1,22 +1,13 @@
 import fltk as f 
 import shapefile
-import time
-from datetime import date
+import time 
 import couleur_final as c
 
 
 
 
 
-'''creer fonctions:
--Une permettant de cliquer sur un bouton pour passer de la map monde a france et inversement (Changement de fichier)
--une pour changer les couleurs de la carte (en fonction des dates)
--un timer pour l'animation (chaque seconde evolutions temperature)
 
-
-'''
-#map_france = "departements-20180101.shp"
-#map_monde = "country_shapes.shp"
 
 def changement_map():
     while True:
@@ -37,11 +28,10 @@ def changement_map():
 fichier_csv = "temperature.csv"
 dico = c.construire_dictionnaire(fichier_csv)
 
-
-def recuperer_liste_date(dico):
+def contruire_liste_date(dico):
     liste_date = []
-    for cle, valeurs in dico.items():
-        for valeur in valeurs:
+    for cle , valeur in dico.items() :
+        for valeur in dico[cle] :
             if valeur not in liste_date:
                 liste_date.append(valeur)
     return liste_date
@@ -56,43 +46,36 @@ def str_vers_int(liste_date):
         liste_trier.append((annee, mois, jour))
     return liste_trier
 
+def tri_insertion(tab): 
+    # Parcour de 1 à la taille du tab
+    for i in range(1, len(tab)): 
+        k = tab[i] 
+        j = i-1
+        while j >= 0 and k < tab[j] : 
+                tab[j + 1] = tab[j] 
+                j -= 1
+        tab[j + 1] = k
+# Programme principale pour tester le code ci-dessus
+tab = str_vers_int(contruire_liste_date(dico))
+tri_insertion(tab) 
+print ("Le tableau trié est:")
+for i in range(len(tab)): 
+    print ("% d" % tab[i])
 
 
 
-def ordonner_liste_dates(liste_trier):
-    liste_ordonner = []
-    for date in liste_trier:
-        if date not in liste_ordonner:
-            liste_ordonner.append(date)
-
-    liste_ordonner.sort()
-
-    return liste_ordonner
-
-
-#print(ordonner_liste_dates(str_vers_int(recuperer_liste_date(dico))))
-
-def maj_date_chaque_seconde(liste_dates, date_actuelle):
-    for y, m, d in liste_dates:
-        date_actuelle = date(y, m, d).isoformat()
-        print(date_actuelle)
-        time.sleep(0.04)
-
-date_actuelle = ''  # variable mutable
 
 
 
-liste = ordonner_liste_dates(str_vers_int(recuperer_liste_date(dico)))
-
-
-#print(maj_date_chaque_seconde(liste, date_actuelle))
 
 
 
-    
 
 
-'''def changement_date_manuel():
+
+'''__________________Brouillon/Poubelle:_________________________
+
+def changement_date_manuel():
     while True:
         ev = f.donne_ev()
 
@@ -117,8 +100,16 @@ liste = ordonner_liste_dates(str_vers_int(recuperer_liste_date(dico)))
 
 
         f.mise_a_jour()'''
+                
+'''creer fonctions:
+-Une permettant de cliquer sur un bouton pour passer de la map monde a france et inversement (Changement de fichier)
+-une pour changer les couleurs de la carte (en fonction des dates)
+-un timer pour l'animation (chaque seconde evolutions temperature)
 
 
+'''
+#map_france = "departements-20180101.shp"
+#map_monde = "country_shapes.shp"
 
     
     
