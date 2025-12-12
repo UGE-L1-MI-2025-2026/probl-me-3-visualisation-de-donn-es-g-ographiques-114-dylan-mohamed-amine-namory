@@ -51,36 +51,42 @@ def construire_dictionnaire(fichier_csv):
 
 
 
-def tempmax(dico, annee):
-    resultat = {}
 
-    for dep, dates in dico.items():
-
-        max_dep = None 
-
-        for date, temperatures in dates.items():
-
+def tempmax(dico,annee):
+    dict = {}
+    for cle, valeur in dico.items():
+        for date, temperatures in valeur.items():
             
-            if date.startswith(annee):
-
+            if annee == date[:4]:
                 
-                tmax_str = temperatures["tmax"].replace(",", ".").strip()
+                dict[cle] = temperatures["tmax"]
+    
+    return dict
 
+def tempmin(dico,annee):
+    dict = {}
+    for cle, valeur in dico.items():
+        for date, temperatures in valeur.items():
+            
+            if annee == date[:4]:
                 
+                dict[cle] = temperatures["tmin"]
+    
+    return dict
 
-                tmax = float(tmax_str)
+def tempmoy(dico,annee):
+    dict = {}
+    for cle, valeur in dico.items():
+        for date, temperatures in valeur.items():
+            
+            if annee == date[:4]:
+                
+                dict[cle] = temperatures["tmoy"]
+    
+    return dict   
 
-                if max_dep == None:
-                    max_dep = tmax
-          
-                else:
-                    if tmax > max_dep:
-                        max_dep = tmax
-
-
-        resultat[dep] = max_dep
-
-    return resultat
+fichier_csv ="temperature.csv"
+dico = construire_dictionnaire(fichier_csv)
 
 
 
