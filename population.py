@@ -54,6 +54,20 @@ def densite_annee(dico, annee):
         if annee in valeurs:
             d[code] = valeurs[annee]
     return d
+import time
+
+def dates_depuis_1980(dico):
+    """Récupère toutes les dates distinctes ≥ 1980 et les renvoie une par une chaque seconde."""
+    toutes_annees = set()
+    for code, valeurs in dico.items():
+        for annee in valeurs.keys():
+            if annee.isdigit() and int(annee) >= 1980:
+                toutes_annees.add(int(annee))
+    annees_triees = sorted(toutes_annees)
+    # Générateur : yield une année chaque seconde
+    for annee in annees_triees:
+        yield annee
+        time.sleep(1)
 
 
 # Exemple d’utilisation :
