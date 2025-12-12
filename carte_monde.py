@@ -44,7 +44,6 @@ ferme_fenetre()'''
 largeur = 1920-10
 hauteur = 1080-100
 cree_fenetre(largeur, hauteur)
-anne = input("Entrez une année : ")
 
 sf = shapefile.Reader("country_shapes.shp")
 shapes = sf.shapes()
@@ -110,7 +109,5 @@ while True:
             changer_annee_carte(anne)
 
     mise_a_jour()
-
-
-
-ferme_fenetre()
+    attend_ev()
+    ferme_fenetre()

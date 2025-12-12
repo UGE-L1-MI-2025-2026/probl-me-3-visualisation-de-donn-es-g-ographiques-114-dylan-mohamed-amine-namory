@@ -175,7 +175,7 @@ ANNEE_DEBUT = 2018
 ANNEE_FIN = 2025 
 annee_auto_mode = False
 last_update_time = time.time()
-UPDATE_INTERVAL = 1.0 
+UPDATE_INTERVAL = 0.001 
 
 objet_precedent = None
 
