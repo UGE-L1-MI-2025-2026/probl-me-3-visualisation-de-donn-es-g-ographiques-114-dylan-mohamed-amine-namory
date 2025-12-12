@@ -1,9 +1,7 @@
 from fltk import *
 import shapefile
 from couleur_final import *
-
-
-
+import time # Ajout de l'import time
 
 largeur = 900
 hauteur = 800
@@ -37,20 +35,20 @@ xmin, ymin, xmax, ymax = sf.bbox
 def obtenir_temperature_max(t_max):
     if t_max == None:
         return "white"
-    if t_max <= 0: return "#0d0887"   
-    elif t_max <= 5: return "#46039f"  
-    elif t_max <= 10: return "#7201a8"   
-    elif t_max <= 15: return "#9c179e"   
-    elif t_max <= 20: return "#bd3786"   
-    elif t_max <= 25: return "#dd513a"   
-    elif t_max <= 30: return "#f37819"   
-    elif t_max <= 35: return "#fca50a"   
+    if t_max <= 0: return "#0d0887"
+    elif t_max <= 5: return "#46039f"
+    elif t_max <= 10: return "#7201a8"
+    elif t_max <= 15: return "#9c179e"
+    elif t_max <= 20: return "#bd3786"
+    elif t_max <= 25: return "#dd513a"
+    elif t_max <= 30: return "#f37819"
+    elif t_max <= 35: return "#fca50a"
     else: return "#fcba03"
 
 
 def dessiner_colorbar():
-    x1 = 780  
-    x2 = 840  
+    x1 = 780
+    x2 = 840
     hauteur = 40
     y = 50
 
@@ -68,7 +66,7 @@ def dessiner_colorbar():
 
     for temp, col in couleurs:
         rectangle(x1, y, x2, y + hauteur, remplissage=col, couleur="black")
-        texte(x2 + 5, y + 10, temp, taille=12, couleur="black")  
+        texte(x2 + 5, y + 10, temp, taille=12, couleur="black")
         y += hauteur
 
 
@@ -155,14 +153,50 @@ def changer_annee_carte(annee):
     mise_a_jour()
 
 
-
+# --- Variables pour le mode automatique ---
+ANNEE_DEBUT = 2018
+ANNEE_FIN = 2025 # Année maximale de vos données
+annee_auto_mode = False
+last_update_time = time.time()
+UPDATE_INTERVAL = 1.0 # 1 seconde entre chaque année
 
 objet_precedent = None
 
 while True:
+    
     ev = donne_ev()
     tev = type_ev(ev)
 
+    # 1. Gestion de l'événement Espace pour basculer le mode auto (CORRIGÉ)
+    if tev == 'Touche':
+        if touche(ev) == 'space': # Utilise 'space' selon la documentation FLTK
+            annee_auto_mode = not annee_auto_mode # Bascule
+            
+            if annee_auto_mode:
+                # Initialisation à 2018 lors de l'activation
+                annee = str(ANNEE_DEBUT)
+                changer_annee_carte(annee)
+                last_update_time = time.time()
+            
+            print(f"Mode d'affichage annuel automatique : {annee_auto_mode}")
+
+
+    # 2. Logique d'avancement automatique de l'année
+    if annee_auto_mode and time.time() - last_update_time >= UPDATE_INTERVAL:
+        annee_actuelle = int(annee)
+        
+        if annee_actuelle < ANNEE_FIN:
+            # Passe à l'année suivante
+            annee = str(annee_actuelle + 1)
+            changer_annee_carte(annee)
+            last_update_time = time.time()
+            print(f"Année auto : {annee}")
+        else:
+            # Arrivé à la fin, on désactive le mode
+            annee_auto_mode = False
+            print("Fin de la séquence annuelle. Mode désactivé.")
+            
+    # --- Début de la logique de clic existante ---
     if tev == 'ClicDroit' or tev=="ClicGauche" :
         x = abscisse(ev)
         y = ordonnee(ev)
